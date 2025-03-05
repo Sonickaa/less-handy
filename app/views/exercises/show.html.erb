@@ -1,0 +1,10 @@
+<div>
+  <h1><%= @exercise.name %></h1>
+  <p><%= @exercise.description %></p>
+</div>
+<div>
+  <%= link_to "next exercise", exercise_path(@exercise) %>
+</div>
+<div>
+  <%= link_to "home", root_path%>
+</div>
