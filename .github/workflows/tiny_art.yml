@@ -16,7 +16,7 @@ jobs:
 
       # 2️⃣ Generate random ASCII art and save it to a Rails partial
       - run: |
-          # Create a 10x10 grid of random characters (*, #, @)
+          # Create a 10x10 grid of random characters (*, <, ^, °, >)
           ART=""
           CHARS="*#@"
           for i in {1..10}; do
