@@ -1,0 +1,39 @@
+name: Tiny Art Generator
+
+# When the workflow runs
+on:
+  schedule:
+    - cron: "0 */8 * * *" # every 8 hours
+  workflow_dispatch: # allows manual run too
+
+jobs:
+  generate-art:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout the repo so we can modify files
+      - uses: actions/checkout@v3
+
+      # 2️⃣ Generate random ASCII art and save it to a Rails partial
+      - run: |
+          # Create a 10x10 grid of random characters (*, #, @)
+          ART=""
+          CHARS="*#@"
+          for i in {1..10}; do
+            ROW=""
+            for j in {1..10}; do
+              ROW="$ROW${CHARS:RANDOM%3:1}"
+            done
+            ART="$ART$ROW\n"
+          done
+
+          # Save it as a Rails partial
+          echo -e "<pre>$ART</pre>" > app/views/shared/_tiny_art.html.erb
+
+      # 3️⃣ Commit and push changes
+      - run: |
+          git config user.name "Your Name"
+          git config user.email "you@example.com"
+          git add app/views/shared/_tiny_art.html.erb
+          git commit -m "Generate new tiny ASCII art $(date)" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
