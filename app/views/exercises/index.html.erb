@@ -1,1 +1,11 @@
 <h1>My activities</h1>
+<div>
+  <% @exercises.each do |exercise| %>
+<div>
+    <li><%= exercise.name %></li>
+    <p><%= exercise.description %></p>
+    <%= link_to "delete", exercise_path(exercise), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+</div>
+<% end %>
+</div>
+<%= link_to "Back to home page", root_path %>
