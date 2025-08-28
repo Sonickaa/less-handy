@@ -1,33 +1,36 @@
 name: Tiny Art Generator
 
-# When the workflow runs
 on:
   schedule:
     - cron: "0 */8 * * *" # every 8 hours
-  workflow_dispatch: # allows manual run too
+  workflow_dispatch: # allows manual run
 
 jobs:
   generate-art:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout the repo so we can modify files
+      # 1️⃣ Checkout repo
       - uses: actions/checkout@v3
 
-      # 2️⃣ Generate random ASCII art and save it to a Rails partial
+      # 2️⃣
       - run: |
-          # Create a 10x10 grid of random characters (*, <, ^, °, >)
+          mkdir -p app/views/shared
           ART=""
-          CHARS="*#@"
-          for i in {1..10}; do
+          CHARS="*<^°>"
+          for i in {1..20}; do
             ROW=""
-            for j in {1..10}; do
-              ROW="$ROW${CHARS:RANDOM%3:1}"
+            for j in {1..20}; do
+              if [ $i -eq 1 ] || [ $i -eq 20 ] || [ $j -eq 1 ] || [ $j -eq 20 ]; then
+                ROW="$ROW*"  # border
+              elif [ $i -eq $j ] || [ $i + $j - 1 -eq 20 ]; then
+                ROW="$ROW^"  # diagonal
+              else
+                ROW="$ROW${CHARS:RANDOM%5:1}"  # random inside
+              fi
             done
             ART="$ART$ROW\n"
           done
-
-          # Save it as a Rails partial
           echo -e "<pre>$ART</pre>" > app/views/shared/_tiny_art.html.erb
 
       # 3️⃣ Commit and push changes
