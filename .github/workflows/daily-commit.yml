@@ -27,4 +27,4 @@ jobs:
       - run: |
           git add activity_log.txt
           git commit -m "Update log $(date)" || echo "No changes to commit"
-          git push
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
