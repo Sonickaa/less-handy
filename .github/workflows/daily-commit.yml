@@ -1,0 +1,30 @@
+name: Daily commit
+
+# When the workflow runs
+on:
+  schedule:
+    - cron: "0 */8 * * *" # every 8 hours
+  workflow_dispatch: # allows manual trigger too
+
+jobs:
+  update-log:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repo so we can edit files
+      - uses: actions/checkout@v3
+
+      # 2. Append current date & time to activity_log.txt
+      - run: |
+          echo "$(date)" >> activity_log.txt
+
+      # 3. Configure Git user (so commit has author)
+      - run: |
+          git config user.name "Your Name"
+          git config user.email "you@example.com"
+
+      # 4. Add, commit, and push the change
+      - run: |
+          git add activity_log.txt
+          git commit -m "Update log $(date)" || echo "No changes to commit"
+          git push
