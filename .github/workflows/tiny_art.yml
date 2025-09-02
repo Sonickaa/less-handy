@@ -1,5 +1,8 @@
 name: Tiny Art Generator
 
+permissions:
+  contents: write
+
 on:
   schedule:
     - cron: "0 */8 * * *" # every 8 hours
@@ -50,4 +53,4 @@ jobs:
           git config user.email "${GIT_AUTHOR_EMAIL}"
           git add app/views/shared/_tiny_art.html.erb
           git commit -m "Generate new tiny ASCII art $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || exit 0
-          git push "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:main
+          git push origin HEAD:main
