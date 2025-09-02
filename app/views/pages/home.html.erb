@@ -1,7 +1,10 @@
-<h1>My personal check-in</h1>
-<div>
-<%= link_to "play now", exercise_path(@exercise) %>
-</div>
-<div>
-<%= link_to "more", more_path %>
+<div class="max-w-3xl mx-auto mt-12 px-4 space-y-6">
+  <h1 class="text-3xl md:text-4xl font-bold text-red-500">
+    My personal check-in
+  </h1>
+
+  <div class="flex flex-wrap gap-4">
+    <%= link_to "Play Now", exercise_path(@exercise), class: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-lg shadow transition duration-300" %>
+    <%= link_to "More", more_path, class: "bg-white hover:bg-gray-100 text-red-500 font-semibold py-2 px-5 rounded-lg border border-red-500 shadow-sm transition duration-300" %>
+  </div>
 </div>
