@@ -43,14 +43,15 @@ jobs:
       - name: Commit and push
         env:
           REPO: ${{ github.repository }}
-          TOKEN: ${{ secrets.PERSONAL_TOKEN }} # create this PAT secret with repo:contents read/write
+          TOKEN: ${{ secrets.PERSONAL_TOKEN }} # you need to create this PAT secret
           GIT_AUTHOR_NAME: "Sonia Chaboud"
-          GIT_AUTHOR_EMAIL: "YOUR_NOREPLY_EMAIL" # e.g. 123456+Sonickaa@users.noreply.github.com
+          GIT_AUTHOR_EMAIL: "123456+Sonickaa@users.noreply.github.com" # replace with your real noreply
           GIT_COMMITTER_NAME: "Sonia Chaboud"
-          GIT_COMMITTER_EMAIL: "YOUR_NOREPLY_EMAIL"
+          GIT_COMMITTER_EMAIL: "123456+Sonickaa@users.noreply.github.com"
         run: |
           git config user.name "${GIT_AUTHOR_NAME}"
           git config user.email "${GIT_AUTHOR_EMAIL}"
           git add app/views/shared/_tiny_art.html.erb
-          git commit -m "Generate new tiny ASCII art $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || exit 0
+          git commit -m "Generate new tiny ASCII art $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || echo "No changes to commit"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${REPO}
           git push origin HEAD:main
