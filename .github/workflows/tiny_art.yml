@@ -34,9 +34,9 @@ jobs:
           echo -e "<pre>$ART</pre>" > app/views/shared/_tiny_art.html.erb
 
       # 3️⃣ Commit and push changes
-      - run: |
-          git config user.name "Your Name"
-          git config user.email "you@example.com"
-          git add app/views/shared/_tiny_art.html.erb
-          git commit -m "Generate new tiny ASCII art $(date)" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+- run: |
+    git config user.name "Sonia Chaboud"
+    git config user.email "your-email@example.com"
+    git add app/views/shared/_tiny_art.html.erb
+    git commit -m "Generate new tiny ASCII art $(date)" || echo "No changes to commit"
+    git push https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
