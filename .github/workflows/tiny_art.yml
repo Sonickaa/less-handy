@@ -3,40 +3,51 @@ name: Tiny Art Generator
 on:
   schedule:
     - cron: "0 */8 * * *" # every 8 hours
-  workflow_dispatch: # allows manual run
+  workflow_dispatch: # allow manual runs
 
 jobs:
   generate-art:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repo
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false # we push with PAT instead
 
-      # 2️⃣
-      - run: |
+      - name: Generate ASCII art partial
+        shell: bash
+        run: |
+          set -euo pipefail
           mkdir -p app/views/shared
           ART=""
-          CHARS="*<^°>"
+          CHARS='*<^°>'
           for i in {1..20}; do
             ROW=""
             for j in {1..20}; do
-              if [ $i -eq 1 ] || [ $i -eq 20 ] || [ $j -eq 1 ] || [ $j -eq 20 ]; then
-                ROW="$ROW*"  # border
-              elif [ $i -eq $j ] || [ $i + $j - 1 -eq 20 ]; then
-                ROW="$ROW^"  # diagonal
+              if [ "$i" -eq 1 ] || [ "$i" -eq 20 ] || [ "$j" -eq 1 ] || [ "$j" -eq 20 ]; then
+                ROW="${ROW}*"            # border
+              elif [ "$i" -eq "$j" ] || [ $(( i + j - 1 )) -eq 20 ]; then
+                ROW="${ROW}^"            # diagonal/X
               else
-                ROW="$ROW${CHARS:RANDOM%5:1}"  # random inside
+                idx=$(( RANDOM % ${#CHARS} ))
+                ROW="${ROW}${CHARS:idx:1}"
               fi
             done
-            ART="$ART$ROW\n"
+            ART="${ART}${ROW}\n"
           done
-          echo -e "<pre>$ART</pre>" > app/views/shared/_tiny_art.html.erb
+          printf '<pre>%b</pre>\n' "$ART" > app/views/shared/_tiny_art.html.erb
 
-      # 3️⃣ Commit and push changes
-- run: |
-    git config user.name "Sonia Chaboud"
-    git config user.email "your-email@example.com"
-    git add app/views/shared/_tiny_art.html.erb
-    git commit -m "Generate new tiny ASCII art $(date)" || echo "No changes to commit"
-    git push https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+      - name: Commit and push
+        env:
+          REPO: ${{ github.repository }}
+          TOKEN: ${{ secrets.PERSONAL_TOKEN }} # create this PAT secret with repo:contents read/write
+          GIT_AUTHOR_NAME: "Sonia Chaboud"
+          GIT_AUTHOR_EMAIL: "YOUR_NOREPLY_EMAIL" # e.g. 123456+Sonickaa@users.noreply.github.com
+          GIT_COMMITTER_NAME: "Sonia Chaboud"
+          GIT_COMMITTER_EMAIL: "YOUR_NOREPLY_EMAIL"
+        run: |
+          git config user.name "${GIT_AUTHOR_NAME}"
+          git config user.email "${GIT_AUTHOR_EMAIL}"
+          git add app/views/shared/_tiny_art.html.erb
+          git commit -m "Generate new tiny ASCII art $(date -u +'%Y-%m-%d %H:%M:%S UTC')" || exit 0
+          git push "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:main
