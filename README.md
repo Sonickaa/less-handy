@@ -1,24 +1,6 @@
-# README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Less-Handy is a very simple app created for my friend who was addicted to his phone.
 
-Things you may want to cover:
+Handy for all of us who want to rest a bit in the present moment. 
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Let Less-Handy guide you to use less Handy :)
