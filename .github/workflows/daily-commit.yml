@@ -1,30 +1,50 @@
 name: Daily commit
 
-# When the workflow runs
+# Runs every second day (together with "Tiny Art Generator" this makes
+# two commits on each of those days).
+#
+# A plain "*/2" day-of-month cron restarts every month (31st -> 1st runs two
+# days in a row), so the job is scheduled daily and the "Check day" step
+# skips every other day based on the number of days since 1970-01-01.
+
+permissions:
+  contents: write
+
 on:
   schedule:
-    - cron: "0 */8 * * *" # every 8 hours
-  workflow_dispatch: # allows manual trigger too
+    - cron: "0 9 * * *" # daily at 09:00 UTC, but only commits every second day
+  workflow_dispatch: # manual runs always commit
 
 jobs:
   update-log:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the repo so we can edit files
-      - uses: actions/checkout@v3
+      - name: Check day
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ $(( $(date -u +%s) / 86400 % 2 )) -eq 0 ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Off day, skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      # 2. Append current date & time to activity_log.txt
-      - run: |
-          echo "$(date)" >> activity_log.txt
+      - name: Checkout
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/checkout@v4
 
-      # 3. Configure Git user (so commit has author)
-      - run: |
-          git config user.name "Your Name"
-          git config user.email "you@example.com"
+      - name: Append date to activity_log.txt
+        if: steps.gate.outputs.run == 'true'
+        run: echo "$(date -u)" >> activity_log.txt
 
-      # 4. Add, commit, and push the change
-      - run: |
+      - name: Commit & push
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          # Your GitHub noreply address, so the commit counts on your profile
+          git config user.name "Sonia Chaboud"
+          git config user.email "122700687+Sonickaa@users.noreply.github.com"
           git add activity_log.txt
-          git commit -m "Update log $(date)" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+          git commit -m "Update log $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          git pull --rebase origin main
+          git push origin HEAD:main
